@@ -29,14 +29,14 @@ export default function ProfilePage() {
   const loadAddresses = useCallback(async () => {
     try {
       setLoading(true)
-      const response = await api.get(`/users/${user.userId}/addresses`, token)
+      const response = await api.get('/me/addresses', token)
       setAddresses(response ?? [])
     } catch (error) {
       toast.error('Unable to load addresses', error.message)
     } finally {
       setLoading(false)
     }
-  }, [toast, token, user.userId])
+  }, [toast, token])
 
   useEffect(() => {
     loadAddresses()
@@ -58,7 +58,7 @@ export default function ProfilePage() {
         await api.put(`/addresses/${editingId}`, form, token)
         toast.success('Address updated', 'Your address changes were saved.')
       } else {
-        await api.post(`/users/${user.userId}/addresses`, form, token)
+        await api.post('/me/addresses', form, token)
         toast.success('Address added', 'A new delivery address is ready to use.')
       }
       resetForm()
