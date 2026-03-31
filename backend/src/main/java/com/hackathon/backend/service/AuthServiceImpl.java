@@ -50,9 +50,8 @@ public class AuthServiceImpl {
             throw new ApiException(HttpStatus.CONFLICT, "Email is already in use");
         }
 
-        RoleName roleName = resolveRoleName(signupRequest.getRole());
-        Role role = roleRepository.findByRoleName(roleName)
-                .orElseGet(() -> createRole(roleName));
+        Role role = roleRepository.findByRoleName(RoleName.USER)
+                .orElseGet(() -> createRole(RoleName.USER));
 
         User user = new User();
         user.setUsername(signupRequest.getUsername());
@@ -94,13 +93,6 @@ public class AuthServiceImpl {
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", authentication.getName()));
         return toUserInfo(user);
-    }
-
-    private RoleName resolveRoleName(String requestedRole) {
-        if ("admin".equalsIgnoreCase(requestedRole)) {
-            return RoleName.ADMIN;
-        }
-        return RoleName.USER;
     }
 
     private Role createRole(RoleName roleName) {
