@@ -2,12 +2,12 @@ package com.hackathon.backend.controller;
 
 import com.hackathon.backend.dto.request.LoginRequest;
 import com.hackathon.backend.dto.request.SignupRequest;
+import com.hackathon.backend.dto.response.AuthResponse;
 import com.hackathon.backend.dto.response.MessageResponse;
 import com.hackathon.backend.dto.response.UserInfoResponse;
 import com.hackathon.backend.service.AuthServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,16 +27,12 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<MessageResponse> signup(@Valid @RequestBody SignupRequest signupRequest) {
-        return authService.signup(signupRequest);
+        return ResponseEntity.ok(authService.signup(signupRequest));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
-        try {
-            return ResponseEntity.ok(authService.login(loginRequest));
-        } catch (AuthenticationException exception) {
-            return ResponseEntity.status(401).body(new MessageResponse("Invalid username or password"));
-        }
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+        return ResponseEntity.ok(authService.login(loginRequest));
     }
 
     @PostMapping("/logout")

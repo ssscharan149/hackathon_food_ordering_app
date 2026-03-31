@@ -5,6 +5,8 @@ import com.hackathon.backend.dto.request.SignupRequest;
 import com.hackathon.backend.dto.response.AuthResponse;
 import com.hackathon.backend.dto.response.MessageResponse;
 import com.hackathon.backend.dto.response.UserInfoResponse;
+import com.hackathon.backend.exceptions.ApiException;
+import com.hackathon.backend.exceptions.ResourceNotFoundException;
 import com.hackathon.backend.model.Role;
 import com.hackathon.backend.model.Role.RoleName;
 import com.hackathon.backend.model.User;
@@ -12,7 +14,7 @@ import com.hackathon.backend.repository.RoleRepository;
 import com.hackathon.backend.repository.UserRepository;
 import com.hackathon.backend.security.JwtService;
 import com.hackathon.backend.security.UserDetailsImpl;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,13 +41,13 @@ public class AuthServiceImpl {
         this.jwtService = jwtService;
     }
 
-    public ResponseEntity<MessageResponse> signup(SignupRequest signupRequest) {
+    public MessageResponse signup(SignupRequest signupRequest) {
         if (userRepository.existsByUsername(signupRequest.getUsername())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Username is already taken"));
+            throw new ApiException(HttpStatus.CONFLICT, "Username is already taken");
         }
 
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Email is already in use"));
+            throw new ApiException(HttpStatus.CONFLICT, "Email is already in use");
         }
 
         RoleName roleName = resolveRoleName(signupRequest.getRole());
@@ -61,7 +63,7 @@ public class AuthServiceImpl {
 
         userRepository.save(user);
 
-        return ResponseEntity.ok(new MessageResponse("User registered successfully"));
+        return new MessageResponse("User registered successfully");
     }
 
     public AuthResponse login(LoginRequest loginRequest) {
@@ -90,7 +92,7 @@ public class AuthServiceImpl {
         }
 
         User user = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new BadCredentialsException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", authentication.getName()));
         return toUserInfo(user);
     }
 
