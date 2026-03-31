@@ -12,6 +12,9 @@ public class RestaurantRequestDTO {
     @Size(max = 255, message = "Description must not exceed 255 characters")
     private String description;
 
+    @Size(max = 500, message = "Poster URL must not exceed 500 characters")
+    private String posterUrl;
+
     @NotBlank
     @Size(max = 255, message = "Location must not exceed 255 characters")
     private String location;
@@ -30,6 +33,14 @@ public class RestaurantRequestDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getPosterUrl() {
+        return posterUrl;
+    }
+
+    public void setPosterUrl(String posterUrl) {
+        this.posterUrl = posterUrl;
     }
 
     public String getLocation() {

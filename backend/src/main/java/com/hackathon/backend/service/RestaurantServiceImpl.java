@@ -44,6 +44,7 @@ public class RestaurantServiceImpl {
         Restaurant restaurant = new Restaurant();
         restaurant.setName(restaurantRequestDTO.getName().trim());
         restaurant.setDescription(trimToNull(restaurantRequestDTO.getDescription()));
+        restaurant.setPosterUrl(trimToNull(restaurantRequestDTO.getPosterUrl()));
         restaurant.setLocation(restaurantRequestDTO.getLocation().trim());
         restaurant.setCreatedBy(user);
 
@@ -96,6 +97,7 @@ public class RestaurantServiceImpl {
 
         restaurant.setName(updatedName);
         restaurant.setDescription(trimToNull(restaurantRequestDTO.getDescription()));
+        restaurant.setPosterUrl(trimToNull(restaurantRequestDTO.getPosterUrl()));
         restaurant.setLocation(updatedLocation);
 
         Restaurant updatedRestaurant = restaurantRepository.save(restaurant);
@@ -126,6 +128,7 @@ public class RestaurantServiceImpl {
         restaurantDTO.setRestaurantId(restaurant.getRestaurantId());
         restaurantDTO.setName(restaurant.getName());
         restaurantDTO.setDescription(restaurant.getDescription());
+        restaurantDTO.setPosterUrl(restaurant.getPosterUrl());
         restaurantDTO.setLocation(restaurant.getLocation());
         restaurantDTO.setCreatedByUserId(restaurant.getCreatedBy().getUserId());
         restaurantDTO.setCreatedByUsername(restaurant.getCreatedBy().getUsername());
