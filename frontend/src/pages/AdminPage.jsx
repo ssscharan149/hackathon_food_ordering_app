@@ -32,7 +32,7 @@ const emptyMenuItem = {
 }
 
 export default function AdminPage() {
-  const { token, user } = useAuth()
+  const { token } = useAuth()
   const toast = useToast()
   const [loading, setLoading] = useState(true)
   const [uploadingRestaurant, setUploadingRestaurant] = useState(false)
@@ -52,7 +52,7 @@ export default function AdminPage() {
     try {
       setLoading(true)
       const [restaurantResponse, categoryResponse, menuResponse] = await Promise.all([
-        api.get(`/users/${user.userId}/restaurants`, token),
+        api.get('/me/restaurants', token),
         api.get('/public/categories?pageNumber=0&pageSize=100', token),
         api.get('/admin/menuItems?pageNumber=0&pageSize=100', token),
       ])
@@ -64,7 +64,7 @@ export default function AdminPage() {
     } finally {
       setLoading(false)
     }
-  }, [toast, token, user.userId])
+  }, [toast, token])
 
   useEffect(() => {
     loadDashboard()
@@ -104,7 +104,7 @@ export default function AdminPage() {
         await api.put(`/restaurants/${editingRestaurantId}`, restaurantForm, token)
         toast.success('Restaurant updated', 'Restaurant details were saved successfully.')
       } else {
-        await api.post(`/users/${user.userId}/restaurants`, restaurantForm, token)
+        await api.post('/me/restaurants', restaurantForm, token)
         toast.success('Restaurant created', 'A new restaurant was added for this admin.')
       }
       resetRestaurant()

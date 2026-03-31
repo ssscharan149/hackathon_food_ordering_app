@@ -10,7 +10,7 @@ import { api } from '../lib/api'
 import { formatCurrency } from '../lib/format'
 
 export default function OrdersPage() {
-  const { token, user } = useAuth()
+  const { token } = useAuth()
   const toast = useToast()
   const [orders, setOrders] = useState([])
   const [deliveryAddress, setDeliveryAddress] = useState('')
@@ -20,14 +20,14 @@ export default function OrdersPage() {
   const loadOrders = useCallback(async () => {
     try {
       setLoading(true)
-      const response = await api.get(`/users/${user.userId}/orders`, token)
+      const response = await api.get('/me/orders', token)
       setOrders(response ?? [])
     } catch (error) {
       toast.error('Unable to load orders', error.message)
     } finally {
       setLoading(false)
     }
-  }, [toast, token, user.userId])
+  }, [toast, token])
 
   useEffect(() => {
     loadOrders()
@@ -38,7 +38,7 @@ export default function OrdersPage() {
 
     try {
       setPlacingOrder(true)
-      const response = await api.post(`/users/${user.userId}/orders`, { deliveryAddress }, token)
+      const response = await api.post('/me/orders', { deliveryAddress }, token)
       setOrders((current) => [response, ...current])
       setDeliveryAddress('')
       toast.success('Order placed', `Order #${response.orderId} was created successfully.`)
