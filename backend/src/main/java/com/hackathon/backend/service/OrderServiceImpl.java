@@ -15,13 +15,14 @@ import com.hackathon.backend.repository.CartItemRepository;
 import com.hackathon.backend.repository.CartLookupRepository;
 import com.hackathon.backend.repository.OrderItemRepository;
 import com.hackathon.backend.repository.OrderRepository;
-import com.hackathon.backend.repository.UserRepository;
+import com.hackathon.backend.security.AuthenticatedUserService;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,27 +32,27 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemRepository orderItemRepository;
     private final CartLookupRepository cartLookupRepository;
     private final CartItemRepository cartItemRepository;
-    private final UserRepository userRepository;
+    private final AuthenticatedUserService authenticatedUserService;
 
     public OrderServiceImpl(
             OrderRepository orderRepository,
             OrderItemRepository orderItemRepository,
             CartLookupRepository cartLookupRepository,
             CartItemRepository cartItemRepository,
-            UserRepository userRepository
+            AuthenticatedUserService authenticatedUserService
     ) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.cartLookupRepository = cartLookupRepository;
         this.cartItemRepository = cartItemRepository;
-        this.userRepository = userRepository;
+        this.authenticatedUserService = authenticatedUserService;
     }
 
     @Override
     @Transactional
-    public OrderDTO placeOrder(Long userId, OrderRequestDTO orderRequestDTO) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "userId", userId));
+    public OrderDTO placeOrder(OrderRequestDTO orderRequestDTO) {
+        User user = authenticatedUserService.getCurrentUser();
+        Long userId = user.getUserId();
 
         Cart cart = cartLookupRepository.findByUserUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart", "userId", userId));
@@ -90,10 +91,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderDTO> getUserOrders(Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "userId", userId));
-
+    public List<OrderDTO> getUserOrders() {
+        Long userId = authenticatedUserService.getCurrentUser().getUserId();
         List<Order> orders = orderRepository.findByUserUserIdOrderByOrderIdDesc(userId);
         if (orders.isEmpty()) {
             return List.of();
@@ -121,8 +120,16 @@ public class OrderServiceImpl implements OrderService {
     public OrderDTO getOrderById(Long orderId) {
         Order order = orderRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "orderId", orderId));
+        validateOrderOwnership(order);
         List<OrderItem> orderItems = orderItemRepository.findByOrderOrderId(orderId);
         return mapToOrderDtoFromEntities(order, orderItems);
+    }
+
+    private void validateOrderOwnership(Order order) {
+        User authenticatedUser = authenticatedUserService.getCurrentUser();
+        if (!order.getUser().getUserId().equals(authenticatedUser.getUserId())) {
+            throw new AccessDeniedException("You can only access your own orders");
+        }
     }
 
     private Restaurant validateAndGetRestaurant(List<CartItem> cartItems) {
