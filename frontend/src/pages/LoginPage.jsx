@@ -20,11 +20,24 @@ export default function LoginPage({ navigate }) {
     try {
       setLoading(true)
       const response = await api.post('/auth/login', form)
-      login(response)
-      toast.success('Login successful', `Welcome back, ${response.user.username}.`)
-      navigate(response.user.role === 'ADMIN' ? '/admin' : '/')
+      const resolvedUser = response?.user ?? (response?.token ? await api.get('/auth/me', response.token) : null)
+
+      if (!response?.token || !resolvedUser) {
+        throw new Error('Login response is missing account details. Please verify the backend auth response.')
+      }
+
+      login({ token: response.token, user: resolvedUser })
+      toast.success('Login successful', `Welcome back, ${resolvedUser.username}.`)
+      navigate(resolvedUser.role === 'ADMIN' ? '/admin' : '/')
     } catch (error) {
-      toast.error('Login failed', error.message)
+      const message =
+        error.message?.toLowerCase().includes('invalid') ||
+        error.message?.toLowerCase().includes('bad credentials') ||
+        error.message?.toLowerCase().includes('unauthorized')
+          ? 'Invalid username or password.'
+          : error.message
+
+      toast.error('Login failed', message)
     } finally {
       setLoading(false)
     }
