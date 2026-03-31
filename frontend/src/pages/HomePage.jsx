@@ -23,18 +23,13 @@ export default function HomePage({ navigate }) {
   })
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      setLoading(false)
-      return
-    }
-
     const load = async () => {
       try {
         setLoading(true)
         const [restaurantsResponse, categoriesResponse, menuResponse] = await Promise.all([
-          api.get('/restaurants', token),
-          api.get('/public/categories?pageNumber=0&pageSize=100', token),
-          api.get('/public/menuItems?pageNumber=0&pageSize=100', token),
+          api.get('/restaurants'),
+          api.get('/public/categories?pageNumber=0&pageSize=100'),
+          api.get('/public/menuItems?pageNumber=0&pageSize=100'),
         ])
         setRestaurants(restaurantsResponse ?? [])
         setCategories(categoriesResponse?.content ?? [])
@@ -47,7 +42,7 @@ export default function HomePage({ navigate }) {
     }
 
     load()
-  }, [isAuthenticated, toast, token])
+  }, [toast])
 
   const filteredItems = useMemo(() => {
     return menuItems.filter((item) => {
@@ -104,53 +99,44 @@ export default function HomePage({ navigate }) {
           ) : null}
         </div>
         <Card title="Quick filters" subtitle="Search by restaurant, category, or keyword.">
-          {isAuthenticated ? (
-            <div className="space-y-4">
-              <input
-                value={filters.keyword}
-                onChange={(event) => setFilters((current) => ({ ...current, keyword: event.target.value }))}
-                placeholder="Search menu items"
-                className="min-h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-400 focus:bg-white"
-              />
-              <select
-                value={filters.restaurantId}
-                onChange={(event) => setFilters((current) => ({ ...current, restaurantId: event.target.value }))}
-                className="min-h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-400 focus:bg-white"
-              >
-                <option value="all">All restaurants</option>
-                {restaurants.map((restaurant) => (
-                  <option key={restaurant.restaurantId} value={restaurant.restaurantId}>
-                    {restaurant.name}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={filters.categoryId}
-                onChange={(event) => setFilters((current) => ({ ...current, categoryId: event.target.value }))}
-                className="min-h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-400 focus:bg-white"
-              >
-                <option value="all">All categories</option>
-                {categories.map((category) => (
-                  <option key={category.categoryId} value={category.categoryId}>
-                    {category.categoryName}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ) : (
-            <EmptyState
-              title="Authentication required"
-              description="The current backend security config protects even the public catalog endpoints, so sign in first to load restaurants and menu items."
+          <div className="space-y-4">
+            <input
+              value={filters.keyword}
+              onChange={(event) => setFilters((current) => ({ ...current, keyword: event.target.value }))}
+              placeholder="Search menu items"
+              className="min-h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-400 focus:bg-white"
             />
-          )}
+            <select
+              value={filters.restaurantId}
+              onChange={(event) => setFilters((current) => ({ ...current, restaurantId: event.target.value }))}
+              className="min-h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-400 focus:bg-white"
+            >
+              <option value="all">All restaurants</option>
+              {restaurants.map((restaurant) => (
+                <option key={restaurant.restaurantId} value={restaurant.restaurantId}>
+                  {restaurant.name}
+                </option>
+              ))}
+            </select>
+            <select
+              value={filters.categoryId}
+              onChange={(event) => setFilters((current) => ({ ...current, categoryId: event.target.value }))}
+              className="min-h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-400 focus:bg-white"
+            >
+              <option value="all">All categories</option>
+              {categories.map((category) => (
+                <option key={category.categoryId} value={category.categoryId}>
+                  {category.categoryName}
+                </option>
+              ))}
+            </select>
+          </div>
         </Card>
       </section>
 
       <Card title="Restaurants" subtitle="All restaurant records from the backend.">
         {loading ? (
           <Spinner label="Loading restaurants" />
-        ) : !isAuthenticated ? (
-          <EmptyState title="Catalog locked" description="Login or sign up to fetch restaurant data from the backend." />
         ) : restaurants.length ? (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {restaurants.map((restaurant) => (
@@ -183,8 +169,6 @@ export default function HomePage({ navigate }) {
       <Card title="Menu items" subtitle="Public listing with add-to-cart actions and backend-driven availability.">
         {loading ? (
           <Spinner label="Loading menu items" />
-        ) : !isAuthenticated ? (
-          <EmptyState title="Login to browse" description="Once authenticated, this page will fetch categories, restaurants, and menu items from the backend." />
         ) : filteredItems.length ? (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {filteredItems.map((item) => (
