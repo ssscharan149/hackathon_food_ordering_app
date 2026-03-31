@@ -5,6 +5,7 @@ public class RestaurantDTO {
     private Long restaurantId;
     private String name;
     private String description;
+    private String posterUrl;
     private String location;
     private Long createdByUserId;
     private String createdByUsername;
@@ -31,6 +32,14 @@ public class RestaurantDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getPosterUrl() {
+        return posterUrl;
+    }
+
+    public void setPosterUrl(String posterUrl) {
+        this.posterUrl = posterUrl;
     }
 
     public String getLocation() {

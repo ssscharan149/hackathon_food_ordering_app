@@ -25,6 +25,9 @@ public class Restaurant {
     @Column(length = 255)
     private String description;
 
+    @Column(name = "poster_url", length = 500)
+    private String posterUrl;
+
     @Column(nullable = false, length = 255)
     private String location;
 
@@ -54,6 +57,14 @@ public class Restaurant {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getPosterUrl() {
+        return posterUrl;
+    }
+
+    public void setPosterUrl(String posterUrl) {
+        this.posterUrl = posterUrl;
     }
 
     public String getLocation() {
