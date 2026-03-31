@@ -2,7 +2,6 @@ package com.hackathon.backend.controller;
 
 import com.hackathon.backend.dto.request.LoginRequest;
 import com.hackathon.backend.dto.request.SignupRequest;
-import com.hackathon.backend.dto.response.AuthResponse;
 import com.hackathon.backend.dto.response.MessageResponse;
 import com.hackathon.backend.dto.response.UserInfoResponse;
 import com.hackathon.backend.service.AuthServiceImpl;
