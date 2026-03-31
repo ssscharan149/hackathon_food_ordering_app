@@ -5,11 +5,9 @@ import com.hackathon.backend.dto.request.SignupRequest;
 import com.hackathon.backend.dto.response.AuthResponse;
 import com.hackathon.backend.dto.response.MessageResponse;
 import com.hackathon.backend.dto.response.UserInfoResponse;
-import com.hackathon.backend.model.Cart;
 import com.hackathon.backend.model.Role;
 import com.hackathon.backend.model.Role.RoleName;
 import com.hackathon.backend.model.User;
-import com.hackathon.backend.repository.CartRepository;
 import com.hackathon.backend.repository.RoleRepository;
 import com.hackathon.backend.repository.UserRepository;
 import com.hackathon.backend.security.JwtService;
@@ -27,17 +25,15 @@ public class AuthServiceImpl {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final CartRepository cartRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
     public AuthServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
-                           CartRepository cartRepository, PasswordEncoder passwordEncoder,
+                           PasswordEncoder passwordEncoder,
                            AuthenticationManager authenticationManager, JwtService jwtService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
-        this.cartRepository = cartRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
@@ -63,11 +59,7 @@ public class AuthServiceImpl {
         user.setPhone(signupRequest.getPhone());
         user.setRole(role);
 
-        User savedUser = userRepository.save(user);
-
-        Cart cart = new Cart();
-        cart.setUser(savedUser);
-        cartRepository.save(cart);
+        userRepository.save(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully"));
     }
