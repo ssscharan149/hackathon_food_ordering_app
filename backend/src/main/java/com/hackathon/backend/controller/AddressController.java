@@ -28,9 +28,11 @@ public class AddressController {
         this.addressService = addressService;
     }
 
-    @PostMapping("/users/{userId}/addresses")
-    public ResponseEntity<AddressDTO> createAddress(@PathVariable Long userId, @Valid @RequestBody AddressDTO addressDTO){
-        AddressDTO savedAddressDTO = addressService.createAddress(userId, addressDTO);
+    @PostMapping("/me/addresses")
+    public ResponseEntity<AddressDTO> createAddress(
+            @Valid @RequestBody AddressDTO addressDTO
+    ) {
+        AddressDTO savedAddressDTO = addressService.createAddress(addressDTO);
         return new ResponseEntity<>(savedAddressDTO, HttpStatus.CREATED);
     }
 
@@ -47,9 +49,9 @@ public class AddressController {
     }
 
 
-    @GetMapping("/users/{userId}/addresses")
-    public ResponseEntity<List<AddressDTO>> getUserAddresses(@PathVariable Long userId){
-        List<AddressDTO> addressList = addressService.getUserAddresses(userId);
+    @GetMapping("/me/addresses")
+    public ResponseEntity<List<AddressDTO>> getUserAddresses(){
+        List<AddressDTO> addressList = addressService.getUserAddresses();
         return new ResponseEntity<>(addressList, HttpStatus.OK);
     }
 

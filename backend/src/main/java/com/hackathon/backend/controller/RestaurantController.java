@@ -29,10 +29,9 @@ public class RestaurantController {
         this.restaurantService = restaurantService;
     }
 
-    @PostMapping("/users/{userId}/restaurants")
-    public ResponseEntity<RestaurantDTO> createRestaurant(@PathVariable Long userId,
-                                                          @Valid @RequestBody RestaurantRequestDTO restaurantRequestDTO) {
-        RestaurantDTO savedRestaurant = restaurantService.createRestaurant(userId, restaurantRequestDTO);
+    @PostMapping("/me/restaurants")
+    public ResponseEntity<RestaurantDTO> createRestaurant(@Valid @RequestBody RestaurantRequestDTO restaurantRequestDTO) {
+        RestaurantDTO savedRestaurant = restaurantService.createRestaurant(restaurantRequestDTO);
         return new ResponseEntity<>(savedRestaurant, HttpStatus.CREATED);
     }
 
@@ -48,9 +47,9 @@ public class RestaurantController {
         return new ResponseEntity<>(restaurantDTO, HttpStatus.OK);
     }
 
-    @GetMapping("/users/{userId}/restaurants")
-    public ResponseEntity<List<RestaurantDTO>> getRestaurantsByUserId(@PathVariable Long userId) {
-        List<RestaurantDTO> restaurantList = restaurantService.getRestaurantsByUserId(userId);
+    @GetMapping("/me/restaurants")
+    public ResponseEntity<List<RestaurantDTO>> getRestaurantsByUserId() {
+        List<RestaurantDTO> restaurantList = restaurantService.getRestaurantsByUserId();
         return new ResponseEntity<>(restaurantList, HttpStatus.OK);
     }
 
